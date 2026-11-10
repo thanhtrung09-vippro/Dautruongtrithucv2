@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đấu Trường Tri Thức - Lịch Sử Tây Ninh</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-monument"></i> ĐẤU TRƯỜNG TRI THỨC - TÂY NINH
+        </div>
+        <div id="userInfo" class="user-info hidden">
+            <span id="displayRole" class="badge"></span>
+            <span id="displayName" class="username"></span>
+            <button id="btnLogout" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Section: Đăng Nhập -->
+        <section id="loginSection" class="card fade-in">
+            <h2><i class="fa-solid fa-user-shield"></i> ĐĂNG NHẬP HỆ THỐNG</h2>
+            <p class="subtitle">Hệ thống thi trắc nghiệm Lịch sử Tây Ninh</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username"><i class="fa-solid fa-user"></i> Tên tài khoản / Họ tên:</label>
+                    <input type="text" id="username" required placeholder="Nhập tên tài khoản hoặc tên thí sinh">
+                </div>
+                <div class="form-group">
+                    <label for="role"><i class="fa-solid fa-user-gear"></i> Vai trò đăng nhập:</label>
+                    <select id="role">
+                        <option value="student">Thí sinh dự thi</option>
+                        <option value="mc">MC Điều khiển Gameshow</option>
+                        <option value="admin">Quản trị viên (Admin)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fa-solid fa-lock"></i> Mật khẩu (Cho MC & Admin):</label>
+                    <input type="password" id="password" placeholder="Thí sinh để trống. MC: mc123, Admin: admin123">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-sign-in-alt"></i> Vào Đấu Trường</button>
+            </form>
+        </section>
+
+        <!-- Section: Thí Sinh Dự Thi -->
+        <section id="studentSection" class="hidden fade-in">
+            <div class="round-selector">
+                <h3><i class="fa-solid fa-trophy"></i> Chọn Vòng Thi Lịch Sử Tây Ninh</h3>
+                <div class="round-buttons">
+                    <button class="btn btn-round" onclick="startRound(1)">
+                        <i class="fa-solid fa-leaf"></i>
+                        <div>Vòng 1: Khởi Động</div>
+                        <small>Địa danh & Cội nguồn</small>
+                    </button>
+                    <button class="btn btn-round" onclick="startRound(2)">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>Vòng 2: Vượt Khó</div>
+                        <small>Kháng chiến chống Pháp - Mỹ</small>
+                    </button>
+                    <button class="btn btn-round" onclick="startRound(3)">
+                        <i class="fa-solid fa-building-columns"></i>
+                        <div>Vòng 3: Tăng Tốc</div>
+                        <small>Di tích & Di sản văn hóa</small>
+                    </button>
+                    <button class="btn btn-round" onclick="startRound(4)">
+                        <i class="fa-solid fa-star"></i>
+                        <div>Vòng 4: Về Đích</div>
+                        <small>Tây Ninh Đổi mới & Phát triển</small>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizContainer" class="card hidden">
+                <div class="quiz-header">
+                    <div><strong id="quizRoundTitle">Vòng 1</strong> - Câu hỏi <span id="currentQuestionNum">1</span>/10</div>
+                    <div class="timer-box"><i class="fa-regular fa-clock"></i> Thời gian: <span id="timer">15</span>s</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+
+                <div class="question-box">
+                    <h3 id="questionText">Nội dung câu hỏi sẽ hiển thị ở đây...</h3>
+                </div>
+
+                <div id="optionsContainer" class="options-grid">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <div id="explanationBox" class="explanation-box hidden">
+                    <i class="fa-solid fa-circle-info"></i> <span id="explanationText"></span>
+                </div>
+
+                <div class="quiz-footer">
+                    <button id="btnNextQuestion" class="btn btn-secondary hidden" onclick="nextQuestion()">Câu tiếp theo <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Score / Result Screen -->
+            <div id="resultContainer" class="card hidden text-center">
+                <i class="fa-solid fa-award result-icon"></i>
+                <h2>KẾT QUẢ VÒNG THI</h2>
+                <div class="score-display">
+                    <span id="finalScore">0</span> / 100 điểm
+                </div>
+                <p id="resultFeedback" class="feedback-text"></p>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="backToRounds()"><i class="fa-solid fa-rotate-left"></i> Chọn vòng thi khác</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Bảng Điều Khiển MC -->
+        <section id="mcSection" class="hidden fade-in">
+            <div class="card">
+                <h2><i class="fa-solid fa-headset"></i> MÀN HÌNH ĐIỀU KHIỂN DÀNH CHO MC</h2>
+                <p>Điều hành Gameshow và hiển thị câu hỏi, đáp án trực quan trên màn hình lớn.</p>
+                
+                <div class="controls-bar">
+                    <label>Chọn vòng thi điều khiển:</label>
+                    <select id="mcRoundSelect" onchange="loadMcRound()">
+                        <option value="1">Vòng 1: Khởi Động</option>
+                        <option value="2">Vòng 2: Vượt Khó</option>
+                        <option value="3">Vòng 3: Tăng Tốc</option>
+                        <option value="4">Vòng 4: Về Đích</option>
+                    </select>
+                </div>
+
+                <div class="mc-stage">
+                    <div class="mc-question-card">
+                        <span class="badge badge-primary" id="mcQuestionIndex">Câu hỏi 1/10</span>
+                        <h2 id="mcQuestionText">Nội dung câu hỏi MC...</h2>
+                        <div id="mcOptionsList" class="mc-options"></div>
+                        <div id="mcAnswerBox" class="mc-answer-box hidden">
+                            <i class="fa-solid fa-circle-check"></i> Đáp án đúng: <strong id="mcCorrectAnswer"></strong>
+                            <p id="mcExplanation"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mc-controls">
+                    <button class="btn btn-warning" onclick="toggleMcAnswer()"><i class="fa-solid fa-eye"></i> Hiện / Ẩn Đáp Án</button>
+                    <button class="btn btn-primary" onclick="prevMcQuestion()"><i class="fa-solid fa-chevron-left"></i> Câu trước</button>
+                    <button class="btn btn-primary" onclick="nextMcQuestion()">Câu kế tiếp <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Bảng Quản Trị Admin -->
+        <section id="adminSection" class="hidden fade-in">
+            <div class="card">
+                <h2><i class="fa-solid fa-sliders"></i> TRANG QUẢN TRỊ ADMIN</h2>
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchAdminTab('data')"><i class="fa-solid fa-database"></i> Quản lý Ngân hàng câu hỏi</button>
+                    <button class="tab-btn" onclick="switchAdminTab('scores')"><i class="fa-solid fa-list-check"></i> Lịch sử điểm Thí sinh</button>
+                </div>
+
+                <!-- Tab 1: Question Bank Management -->
+                <div id="adminTabData" class="tab-content active">
+                    <div class="admin-actions">
+                        <button class="btn btn-success" onclick="showAddQuestionModal()"><i class="fa-solid fa-plus"></i> Thêm câu hỏi mới</button>
+                        <button class="btn btn-outline" onclick="resetQuestionsToDefault()"><i class="fa-solid fa-rotate"></i> Khôi phục dữ liệu gốc</button>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Vòng</th>
+                                <th>Câu hỏi</th>
+                                <th>Đáp án đúng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questionsTableBody">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab 2: Candidate Scoreboard -->
+                <div id="adminTabScores" class="tab-content">
+                    <div class="admin-actions">
+                        <button class="btn btn-danger" onclick="clearScoreHistory()"><i class="fa-solid fa-trash"></i> Xóa lịch sử điểm</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Tên thí sinh</th>
+                                <th>Vòng thi</th>
+                                <th>Điểm số</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoresTableBody">
+                            <!-- Dynamic Scores -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Thêm/Sửa câu hỏi -->
+    <div id="questionModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeQuestionModal()">&times;</span>
+            <h3 id="modalTitle">Thêm Câu Hỏi Mới</h3>
+            <form id="questionForm">
+                <input type="hidden" id="modalQuestionId">
+                <div class="form-group">
+                    <label>Vòng thi:</label>
+                    <select id="modalRound">
+                        <option value="1">Vòng 1</option>
+                        <option value="2">Vòng 2</option>
+                        <option value="3">Vòng 3</option>
+                        <option value="4">Vòng 4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nội dung câu hỏi:</label>
+                    <textarea id="modalQuestionText" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Lựa chọn A:</label>
+                    <input type="text" id="modalOptA" required>
+                </div>
+                <div class="form-group">
+                    <label>Lựa chọn B:</label>
+                    <input type="text" id="modalOptB" required>
+                </div>
+                <div class="form-group">
+                    <label>Lựa chọn C:</label>
+                    <input type="text" id="modalOptC" required>
+                </div>
+                <div class="form-group">
+                    <label>Lựa chọn D:</label>
+                    <input type="text" id="modalOptD" required>
+                </div>
+                <div class="form-group">
+                    <label>Chỉ số đáp án đúng (0 = A, 1 = B, 2 = C, 3 = D):</label>
+                    <select id="modalCorrect">
+                        <option value="0">A</option>
+                        <option value="1">B</option>
+                        <option value="2">C</option>
+                        <option value="3">D</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Giải thích / Lịch sử liên quan:</label>
+                    <textarea id="modalExplanation" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Lưu thay đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Đấu Trường Tri Thức Lịch Sử Tây Ninh | Triển khai dễ dàng trên GitHub Pages</p>
+    </footer>
+
+    <script src="data/questions.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
